@@ -10,8 +10,9 @@ static const char* COS    = "Косинус";
 static const char* LN     = "Логарифмыч";
 static const char* PRINT  = "Выписать";
 static const char* RETURN = "Держи_Уд";
+static const char* INPUT  = "Определить";
 
-static const char* un_functions[] = { SIN, COS, LN, PRINT, RETURN };
+static const char* un_functions[] = { SIN, COS, LN, PRINT, RETURN, INPUT };
 
 bool is_this_un_func (char code, const char* func)
 {   
@@ -57,11 +58,11 @@ char* get_un_func_by_code (char code)
 float use_un_func (char func_code, float value)
 {
 
-    if ( is_this_un_func (func_code, "sin") )
+    if ( is_this_un_func (func_code, SIN) )
         return sin (value);
-    if ( is_this_un_func (func_code, "cos") )
+    if ( is_this_un_func (func_code, COS) )
         return cos (value);
-    if ( is_this_un_func (func_code, "ln") )
+    if ( is_this_un_func (func_code, LN) )
         return log (value);
         
     assert (false);

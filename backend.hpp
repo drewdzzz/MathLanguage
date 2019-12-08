@@ -8,7 +8,7 @@ void write_to_asm (const CalcTree &code);
 
 void asm_undertree (FILE* stream, CalcTree::Node_t *node);
 
-const char* un_function_asm_cmd (const char func_code);
+void asm_un_function (FILE* stream, CalcTree::Node_t *node);
 
 void write_to_asm (const CalcTree &code)
 {
@@ -66,8 +66,7 @@ void asm_undertree (FILE* stream, CalcTree::Node_t *node)
 
         case UN_FUNCTION:
 
-            asm_undertree (stream, node -> right);
-            fprintf (stream, "%s\n", un_function_asm_cmd (node -> node_data.data.code) );
+            asm_un_function (stream, node);
             break;
 
         case COND_OPERATOR:
@@ -157,6 +156,8 @@ void asm_operator (FILE* stream, CalcTree::Node_t *node)
     if (is_this_operator (code, ASSGN))
     {
         asm_undertree (stream, node -> right);
+        if ( node->left->node_data.type != VARIABLE)
+            throw "Могу присвоить только переменной!";
         fprintf (stream, "POPR %d\n", node->left->node_data.data.code);
         return;   
     }
@@ -208,19 +209,33 @@ void asm_cond_operator (FILE* stream, CalcTree::Node_t *node)
     }
 }
 
-const char* un_function_asm_cmd (const char func_code)
+void asm_un_function (FILE* stream, CalcTree::Node_t *node)
 {
-    if ( is_this_un_func (func_code, PRINT) )
+    if ( is_this_un_func (node->node_data.data.code, PRINT) )
     {
-        return "OUT";
+        asm_undertree (stream, node->right);
+        fprintf (stream, "OUT\n" );
+        return;
     }
-    else if ( is_this_un_func (func_code, SIN) )
+    else if ( is_this_un_func (node->node_data.data.code, SIN) )
     {
-        return "SIN"; 
+        asm_undertree (stream, node->right);
+        fprintf (stream, "SIN\n" );
+        return;
     }
-    else if ( is_this_un_func (func_code, RETURN) )
+    else if ( is_this_un_func (node->node_data.data.code, RETURN) )
     {
-        return "RET";
+        asm_undertree (stream, node->right);
+        fprintf (stream, "RET\n" );
+        return;
+    }
+    else if ( is_this_un_func (node->node_data.data.code, INPUT) )
+    {
+        fprintf (stream, "IN\n" );
+        fprintf (stream, "POPR %d\n", node->right->node_data.data.code);
+        if (node->right->node_data.type != VARIABLE)
+            throw "Могу считать только в переменную!";
+        return;
     }
     else
         throw "Не могу ASM эту унарную функцию";

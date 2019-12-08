@@ -11,6 +11,8 @@
 
 #define $p getchar()
 
+int PRINT_DEF_COUNTER = -1;
+
 enum node_type
 {
     QUANTITY,
@@ -479,10 +481,16 @@ protected:
             
             case DEF:
                 fprintf (stream, "DEF:\n%s", def[value.data.code]);
+                PRINT_DEF_COUNTER++;
                 break;
 
             case CALL:
                 fprintf (stream, "CALLING:\n%s", def[value.data.code]);
+                break;
+
+            case ARGUMENT:
+                fprintf (stream, "Функция: %s\n"
+                                 "Аргумент: %s\n", def[PRINT_DEF_COUNTER], DEF_ARGUMENTS[PRINT_DEF_COUNTER][value.data.code]);
                 break;
 
             default: throw "CAN'T WRITE THIS TYPE";

@@ -7,13 +7,14 @@ const int VAR_NUMBER = 100;
 
 const int DEF_NUMBER = 20;
 
-const int ARG_NUMBER = 50;
+const int ARG_NUMBER = 10;
 
 char *variables [VAR_NUMBER] = {};
 
 char *def [DEF_NUMBER] = {};
 
-char *ARGUEMENTS [ARG_NUMBER] = {}; 
+char* DEF_ARGUMENTS[DEF_NUMBER][ARG_NUMBER] = {};
+
 
 #include "differ-tree.hpp"
 
@@ -142,11 +143,9 @@ Node *Get_G (char* input)
         current_node -> left = GetDef (input);
 
         DEBUG_PRINT (I got a function);
-        DEBUG_CODE ($p);
         if ( current_node -> left )
         {
             DEBUG_PRINT (Function was valid);
-            DEBUG_CODE ($p);
             current_node -> left -> father = current_node;
             current_node -> right = new Node;
                 current_node -> right -> node_data.type = BLOCK;
@@ -223,7 +222,7 @@ Node* GetDef (char* &input)
 {
     Node* def_node = new Node;
     def_node -> node_data.type = DEF;
-
+    def_node -> node_data.data.code = DEF_COUNTER;
 
     kill_spaces (input);
 
@@ -244,7 +243,7 @@ Node* GetDef (char* &input)
   
     input += read_count;
 
-    def [DEF_COUNTER++] = strdup (readed);
+    def [DEF_COUNTER] = strdup (readed);
 
     kill_spaces (input);
 
@@ -269,7 +268,7 @@ Node* GetDef (char* &input)
 
             curr_node->node_data.type = ARGUMENT;
             curr_node->node_data.data.code = ARG_COUNTER;
-            ARGUEMENTS[ARG_COUNTER++] = strdup (readed);           
+            DEF_ARGUMENTS[DEF_COUNTER][ARG_COUNTER++] = strdup (readed);           
 
             input += read_count;
 
@@ -308,6 +307,9 @@ Node* GetDef (char* &input)
     DEBUG_CODE (printf ("Input in GetDef: %s\n", input) );
 
     DEBUG_PRINT (MAIN was parsed);
+
+    DEF_COUNTER++;
+    ARG_COUNTER = 0;
 
     return def_node;
 

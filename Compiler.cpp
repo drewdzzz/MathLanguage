@@ -1,6 +1,6 @@
 ///@file
 
-#define DEBUG
+//#define DEBUG
 
 #include "frontend.hpp"
 
@@ -71,7 +71,7 @@ int main ()
 
     try
     {
-        tree.draw("open");
+        tree.dump("open");
         write_to_asm (tree);
     }
     catch(const char* error)
@@ -79,9 +79,8 @@ int main ()
         std::cerr << error << '\n';
         return 1;
     }
-
-    system ("g++ make.cpp -o make");
-    system ("clear");
+    //system ("g++ make.cpp -o make");
+    //system ("clear");
     system ("./make");
 
     return 0;

@@ -5,6 +5,7 @@
 #include <string.h>
 #include <cassert>
 
+static const char* SQRT   = "Корень";
 static const char* SIN    = "Синус";
 static const char* COS    = "Косинус";
 static const char* LN     = "Логарифмыч";
@@ -12,7 +13,7 @@ static const char* PRINT  = "Выписать";
 static const char* RETURN = "Держи_Уд";
 static const char* INPUT  = "Определить";
 
-static const char* un_functions[] = { SIN, COS, LN, PRINT, RETURN, INPUT };
+static const char* un_functions[] = { SIN, COS, LN, PRINT, RETURN, INPUT, SQRT };
 
 bool is_this_un_func (char code, const char* func)
 {   

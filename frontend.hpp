@@ -192,7 +192,7 @@ void GetVars (char* &input)
         {
             kill_spaces (input);
             DEBUG_PRINT (Аксиоматика was found);
-            sscanf (input, "%[^ \n\t\r,.:;^+-*/]%n", readed, &read_count);
+            sscanf (input, "%[^ \n\t\r,.:;^+-*/()]%n", readed, &read_count);
             input += read_count;
             
             DEBUG_CODE ( printf ("Input in get_vars: %s\n", input) );
@@ -244,7 +244,7 @@ Node* GetDef (char* &input)
     int read_count = 0;
     char readed [BUFFERSIZE] = {};  
 
-    if ( ! sscanf (input, "%[^ \n\t\r,.:;^+-*/]%n", readed, &read_count) || ! strcmp (readed, "Доказательство"))
+    if ( ! sscanf (input, "%[^ \n\t\r,.:;^+-*/()]%n", readed, &read_count) || ! strcmp (readed, "Доказательство"))
         throw "Функция без идентификатора";
   
     input += read_count;
@@ -266,7 +266,7 @@ Node* GetDef (char* &input)
         while (1)
         {
             kill_spaces (input);
-            if ( !sscanf (input, "%[^ \n\t\r,.:;^+-*/]%n", readed, &read_count) )
+            if ( !sscanf (input, "%[^ \n\t\r,.:;^+-*/()]%n", readed, &read_count) )
                 break;
 
             curr_node->left = new Node;
@@ -424,7 +424,7 @@ Node* Get_Cond_Op (char* &input, int func_num)
 
     kill_spaces (input);
 
-    if ( ! sscanf (input, "%[^ \n\t\r.,=+0-9:;^+-*/]%n", letters, &read_count) )
+    if ( ! sscanf (input, "%[^ \n\t\r.,=+0-9:;^+-*/()]%n", letters, &read_count) )
     {
         assert (false);                          
     }
@@ -480,7 +480,7 @@ Node* Get_ASSGN (char* &input, int func_num)
     char letters[BUFFERSIZE] = {};
     int read_count = 0;
 
-    sscanf (input, "%[^ \n\t\r.,=+0-9:;^+-*/]%n", letters, &read_count);
+    sscanf (input, "%[^ \n\t\r.,=+0-9:;^+-*/()]%n", letters, &read_count);
 
     Node* new_node = nullptr;
     while ( ! strcmp (letters, ASSGN) )
@@ -528,7 +528,7 @@ Node* Get_Cond (char *&input, int func_num)
     char letters[BUFFERSIZE] = {};
     int read_count = 0;
 
-    sscanf (input, "%[^ \n\t\r.,=+0-9:;^+-*/]%n", letters, &read_count);
+    sscanf (input, "%[^ \n\t\r.,=+0-9:;^+-*/()]%n", letters, &read_count);
 
     if ( ! strcmp (letters, EQUAL) || ! strcmp (letters, NOT_EQUAL) || ! strcmp (letters, LESS) || ! strcmp (letters, MORE) )
     {
@@ -570,7 +570,7 @@ Node* Get_E (char *&input, int func_num)
     char letters[BUFFERSIZE] = {};
     int read_count = 0;
 
-    sscanf (input, "%[^ \n\t\r.,=+0-9:;^+-*/]%n", letters, &read_count);
+    sscanf (input, "%[^ \n\t\r.,=+0-9:;^+-*/()]%n", letters, &read_count);
 
     while ( ! strcmp (letters, ADD) || ! strcmp (letters, SUB) )
     {
@@ -592,7 +592,9 @@ Node* Get_E (char *&input, int func_num)
         node -> right = Get_T (input, func_num);
         node -> right -> father = node;
 
+        kill_spaces (input);
         letters[0] = 0;
+        sscanf (input, "%[^ \n\t\r.,=+0-9:;^+-*/()]%n", letters, &read_count);
     }
     return node;
 }
@@ -610,7 +612,7 @@ Node* Get_T (char *&input, int func_num)
     char letters[BUFFERSIZE] = {};
     int read_count = 0;
 
-    sscanf (input, "%[^ \n\t\r.,=+0-9:;^+-*/]%n", letters, &read_count);
+    sscanf (input, "%[^ \n\t\r.,=+0-9:;^+-*/()]%n", letters, &read_count);
 
     while ( ! strcmp (letters, MUL) || ! strcmp (letters, DIV) )
     {
@@ -630,6 +632,8 @@ Node* Get_T (char *&input, int func_num)
         node -> right -> father = node;
 
         letters[0] = 0;
+        kill_spaces (input);
+        sscanf (input, "%[^ \n\t\r.,=+0-9:;^+-*/()]%n", letters, &read_count);
     }
     return node;     
 }
@@ -649,7 +653,7 @@ Node* Get_K (char *&input, int func_num)
     char letters[BUFFERSIZE] = {};
     int read_count = 0;
 
-    sscanf (input, "%[^ \n\t\r.,=+0-9:;^+-*/]%n", letters, &read_count);
+    sscanf (input, "%[^ \n\t\r.,=+0-9:;^+-*/()]%n", letters, &read_count);
 
     while ( ! strcmp (letters, POW) )
     {
@@ -668,7 +672,9 @@ Node* Get_K (char *&input, int func_num)
         node -> right = Get_P (input, func_num);
         node -> right -> father = node;
 
+        kill_spaces (input);
         letters[0] = 0;
+        sscanf (input, "%[^ \n\t\r.,=+0-9:;^+-*/()]%n", letters, &read_count);
     }
     return node;     
 }
@@ -682,6 +688,7 @@ Node* Get_P (char *&input, int func_num)
     {
         input++;
         Node* node = Get_E (input, func_num);
+        kill_spaces (input);
         if ( *input == ')' )
         {
             input++;
@@ -714,7 +721,7 @@ Node* Get_F (char *&input, int func_num)
     Node *expression = nullptr;
 
     kill_spaces (input);
-    if ( ! sscanf (input, "%[^ \n\t\r.,=+0-9:;^+-*/]%n", letters, &read_count) )
+    if ( ! sscanf (input, "%[^ \n\t\r.,=+0-9:;^+-*/()]%n", letters, &read_count) )
     {
         assert (false);                      
     }

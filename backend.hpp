@@ -192,6 +192,37 @@ void asm_operator (FILE* stream, CalcTree::Node_t *node)
         return; 
     }
 
+    if (is_this_operator (code, LESS))
+    {
+        asm_undertree (stream, node -> left);
+        asm_undertree (stream, node -> right);
+
+        fprintf(stream, "JB COND_T%d\n"
+                        "PUSH 0\n"
+                        "JMP COND_F%d\n"
+                        "COND_T%d:\n"
+                        "PUSH 1\n"
+                        "COND_F%d:\n", LABEL_COUNTER, LABEL_COUNTER, LABEL_COUNTER, LABEL_COUNTER);
+        LABEL_COUNTER++;
+        return; 
+    }
+
+    if (is_this_operator (code, MORE))
+    {
+        asm_undertree (stream, node -> left);
+        asm_undertree (stream, node -> right);
+
+        fprintf(stream, "JA COND_T%d\n"
+                        "PUSH 0\n"
+                        "JMP COND_F%d\n"
+                        "COND_T%d:\n"
+                        "PUSH 1\n"
+                        "COND_F%d:\n", LABEL_COUNTER, LABEL_COUNTER, LABEL_COUNTER, LABEL_COUNTER);
+        LABEL_COUNTER++;
+        return; 
+    }
+
+    printf ("%s\n", operators[node->node_data.data.code]);
     throw "CANNOT ASM THIS OPERATOR";
 
 }
@@ -206,6 +237,7 @@ void asm_cond_operator (FILE* stream, CalcTree::Node_t *node)
                          "JE COND_F%d\n", LABEL_COUNTER);
         asm_undertree (stream, node->right);
         fprintf (stream, "COND_F%d:\n", LABEL_COUNTER);
+        LABEL_COUNTER++;
     }
 }
 
@@ -221,6 +253,12 @@ void asm_un_function (FILE* stream, CalcTree::Node_t *node)
     {
         asm_undertree (stream, node->right);
         fprintf (stream, "SIN\n" );
+        return;
+    }
+    else if ( is_this_un_func (node->node_data.data.code, SQRT) )
+    {
+        asm_undertree (stream, node->right);
+        fprintf (stream, "SQRT\n" );
         return;
     }
     else if ( is_this_un_func (node->node_data.data.code, RETURN) )

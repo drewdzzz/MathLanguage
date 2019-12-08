@@ -270,6 +270,7 @@ Node* GetDef (char* &input)
                 break;
 
             curr_node->left = new Node;
+            curr_node->left->father = curr_node;
             curr_node = curr_node->left;
 
             curr_node->node_data.type = ARGUMENT;
@@ -305,6 +306,8 @@ Node* GetDef (char* &input)
     kill_spaces (input);
 
     def_node -> right = GetLogic (input, DEF_COUNTER);
+
+    def_node -> right -> father = def_node;
 
     DEBUG_PRINT (Logic was set);
 
@@ -378,6 +381,7 @@ Node* GetLogic (char* &input, int func_num)
 
         DEBUG_PRINT (Gonna get Conditional operator);
         current_node -> left = Get_Cond_Op (input, func_num);//ЗОКОНЧИ!
+        current_node -> left -> father = current_node;
 
         DEBUG_PRINT (Got Conditional operator);
 
@@ -741,6 +745,7 @@ Node* Get_F (char *&input, int func_num)
         new_node -> node_data.data.code = get_def_num (letters);
 
         new_node -> right = GetArgs (input, func_num);
+        new_node -> right -> father = new_node;
 
         return new_node;
     }
@@ -828,6 +833,7 @@ Node* GetArgs (char *&input, int func_num)
     for ( kill_spaces (input) ; *input != ','; kill_spaces (input) )
     {
         curr_node -> left = Get_E (input, func_num);
+        curr_node -> left -> father = curr_node;
 
         kill_spaces (input);
 
@@ -835,6 +841,7 @@ Node* GetArgs (char *&input, int func_num)
         {
             input++;
             curr_node -> right = new Node;
+            curr_node -> right -> father = curr_node;
             curr_node = curr_node -> right;
             curr_node -> node_data.type = BLOCK;
             continue;
@@ -847,10 +854,9 @@ Node* GetArgs (char *&input, int func_num)
         throw "Ожидалась запятая в конце инструкции";
 
     }
-    
     return main_node;
-
 }
+
 
 FILE* open_file(const char* input_file_name)
 {

@@ -12,3 +12,4 @@ asm_code.txt
 asm.o
 asm
 Compiler
+make.o

@@ -5,10 +5,13 @@
 #include <string.h>
 #include <cassert>
 
-static const char* un_functions[] = {"Синус",
-                                     "cos",
-                                     "ln",
-                                     "Выписать"};
+static const char* SIN    = "Синус";
+static const char* COS    = "Косинус";
+static const char* LN     = "Логарифмыч";
+static const char* PRINT  = "Выписать";
+static const char* RETURN = "Держи_Уд";
+
+static const char* un_functions[] = { SIN, COS, LN, PRINT, RETURN };
 
 bool is_this_un_func (char code, const char* func)
 {   
@@ -63,20 +66,6 @@ float use_un_func (char func_code, float value)
         
     assert (false);
     return 0;
-}
-
-const char* un_unction_asm_cmd (const char func_code)
-{
-    if ( is_this_un_func (func_code, "Выписать") )
-    {
-        return "OUT";
-    }
-    else if ( is_this_un_func (func_code, "Синус") )
-    {
-        return "SIN"; 
-    }
-    else
-        throw "Не могу ASM эту унарную функцию";
 }
 
 #endif

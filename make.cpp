@@ -8,7 +8,6 @@
     #define MAKE(asm,cpu)       \
         system ("g++ " #asm ".cpp" " -o " #asm);   \
         system ("g++ " #cpu ".cpp" " -o " #cpu);   \
-        system ("clear");         \
         system ("./"#asm);   \
         system ("./"#cpu);
 #else

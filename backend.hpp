@@ -8,6 +8,8 @@ void write_to_asm (const CalcTree &code);
 
 void asm_undertree (FILE* stream, CalcTree::Node_t *node);
 
+const char* un_function_asm_cmd (const char func_code);
+
 void write_to_asm (const CalcTree &code)
 {
     FILE* stream = fopen (OUTPUT_CODE, "w");
@@ -26,6 +28,8 @@ void write_to_asm (const CalcTree &code)
 
     fclose (stream);
 }
+
+
 
 void asm_undertree (FILE* stream, CalcTree::Node_t *node)
 {
@@ -63,7 +67,7 @@ void asm_undertree (FILE* stream, CalcTree::Node_t *node)
         case UN_FUNCTION:
 
             asm_undertree (stream, node -> right);
-            fprintf (stream, "%s\n", un_unction_asm_cmd (node -> node_data.data.code) );
+            fprintf (stream, "%s\n", un_function_asm_cmd (node -> node_data.data.code) );
             break;
 
         case COND_OPERATOR:
@@ -79,8 +83,38 @@ void asm_undertree (FILE* stream, CalcTree::Node_t *node)
             break;
 
         case CALL:
+        {
+            DEBUG_PRINT (Вызываю функцию);
+
+            Node* curr_node = node;
+            int local_counter = 0;
+            while (curr_node -> right)
+            {
+                curr_node = curr_node -> right;
+                asm_undertree (stream, curr_node -> left);
+                fprintf (stream, "POPR %d\n", VAR_NUMBER + ARG_COUNTER * node->node_data.data.code + local_counter++);  
+            }
             fprintf (stream, "\nCALL DEF%d\n", node->node_data.data.code);
+
             break;
+        }
+
+        case ARGUMENT:
+        {
+            DEBUG_PRINT (Пишу использование аргумента);
+            int number_of_def = -1;
+
+            Node* parent_search = node;
+            while (parent_search->node_data.type != DEF)
+                parent_search = parent_search -> father;
+
+            number_of_def = parent_search->node_data.data.code;
+
+            fprintf (stream, "PUSHR %d\n", VAR_NUMBER + ARG_COUNTER * number_of_def + node -> node_data.data.code);
+            break;
+        }
+
+        throw "CANNOT ASM THIS TYPE";
     } 
 }
 
@@ -172,4 +206,22 @@ void asm_cond_operator (FILE* stream, CalcTree::Node_t *node)
         asm_undertree (stream, node->right);
         fprintf (stream, "COND_F%d:\n", LABEL_COUNTER);
     }
+}
+
+const char* un_function_asm_cmd (const char func_code)
+{
+    if ( is_this_un_func (func_code, PRINT) )
+    {
+        return "OUT";
+    }
+    else if ( is_this_un_func (func_code, SIN) )
+    {
+        return "SIN"; 
+    }
+    else if ( is_this_un_func (func_code, RETURN) )
+    {
+        return "RET";
+    }
+    else
+        throw "Не могу ASM эту унарную функцию";
 }

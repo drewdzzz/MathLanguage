@@ -1,6 +1,6 @@
 ///@file
 
-//#define DEBUG
+#define DEBUG
 
 #include "frontend.hpp"
 
@@ -69,6 +69,8 @@ int main ()
         return 15;
     }
 
+    std::cout <<"SUCCESSFULLY COMPILED!"<<'\n';
+
     try
     {
         tree.dump("open");
@@ -79,6 +81,9 @@ int main ()
         std::cerr << error << '\n';
         return 1;
     }
+
+    DEBUG_PRINT (WROTE TO ASM);
+
     //system ("g++ make.cpp -o make");
     //system ("clear");
     system ("./make");

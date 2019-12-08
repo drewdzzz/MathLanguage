@@ -74,6 +74,8 @@ Node* GetDef (char* &input);
 
 Node* GetMain (char* &input);
 
+Node* GetArgs (char* &input, int func_num);
+
 void GetVars (char* &input);
 
 Node *Get_G (char* input);
@@ -438,7 +440,6 @@ Node* Get_Cond_Op (char* &input, int func_num)
         input += read_count;
 
         cond_block -> left = Get_Cond (input, func_num);
-        printf ("INPUT AFTER COND OPERATOR: %s", input);
         cond_block -> left -> father = cond_block;
 
         kill_spaces (input);
@@ -739,6 +740,8 @@ Node* Get_F (char *&input, int func_num)
         new_node -> node_data.type = CALL;
         new_node -> node_data.data.code = get_def_num (letters);
 
+        new_node -> right = GetArgs (input, func_num);
+
         return new_node;
     }
     else 
@@ -801,7 +804,53 @@ Node* Get_N (char *&input)
 }
 
 
+Node* GetArgs (char *&input, int func_num)
+{
+    Node* main_node = new Node;
 
+    main_node->node_data.type = BLOCK;
+
+    Node* curr_node = main_node;
+
+    kill_spaces (input);
+    
+    if (*input == ',')
+        return nullptr;
+    
+    if ( ! check (input, ':') )
+        throw "Неопознанная инструкция";
+
+    kill_spaces (input);
+
+    if ( ! check (input, "кДоске") )
+        throw "Неопознанная инструкция";
+
+    for ( kill_spaces (input) ; *input != ','; kill_spaces (input) )
+    {
+        curr_node -> left = Get_E (input, func_num);
+
+        kill_spaces (input);
+
+        if ( check (input, '/') )
+        {
+            input++;
+            curr_node -> right = new Node;
+            curr_node = curr_node -> right;
+            curr_node -> node_data.type = BLOCK;
+            continue;
+        }
+        else if (*input == ',')
+            break;
+
+        std::cout<<input<<'\n';
+
+        throw "Ожидалась запятая в конце инструкции";
+
+    }
+    
+    return main_node;
+
+}
 
 FILE* open_file(const char* input_file_name)
 {

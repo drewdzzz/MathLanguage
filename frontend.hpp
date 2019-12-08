@@ -32,6 +32,10 @@ bool is_def (char* potentional_var);
 
 int get_def_num (char* var);
 
+bool is_argument (char* potentional_arg, int func_num);
+
+int get_argument_num (char* arg, int func_num);
+
 #ifdef DEBUG
     #define DEBUG_CODE(code) code;
     #define DEBUG_PRINT(print) printf ("\\\\debug: %s\n", #print);
@@ -48,23 +52,23 @@ typedef CalcTree::Node_t Node;
 
 Node* Get_N (char *&input);
 
-Node* Get_F (char *&input);
+Node* Get_F (char *&input, int func_num);
 
-Node* Get_P (char *&input);
+Node* Get_P (char *&input, int func_num);
 
-Node* Get_K (char *&input);
+Node* Get_K (char *&input, int func_num);
 
-Node* Get_T (char *&input);
+Node* Get_T (char *&input, int func_num);
 
-Node* Get_E (char *&input);
+Node* Get_E (char *&input, int func_num);
 
-Node* Get_Cond (char *&input);
+Node* Get_Cond (char *&input, int func_num);
 
-Node* Get_ASSGN (char* &input);
+Node* Get_ASSGN (char* &input, int func_num);
 
-Node* Get_Cond_Op (char* &input);
+Node* Get_Cond_Op (char* &input, int func_num);
 
-Node* GetLogic (char* &input);
+Node* GetLogic (char* &input, int func_num);
 
 Node* GetDef (char* &input);
 
@@ -298,7 +302,7 @@ Node* GetDef (char* &input)
 
     kill_spaces (input);
 
-    def_node -> right = GetLogic (input);
+    def_node -> right = GetLogic (input, DEF_COUNTER);
 
     DEBUG_PRINT (Logic was set);
 
@@ -342,7 +346,7 @@ Node* GetMain (char* &input)
 
     kill_spaces (input);
 
-    main_func -> right = GetLogic (input);
+    main_func -> right = GetLogic (input, -1);
 
     DEBUG_PRINT (Logic was set);
 
@@ -357,7 +361,7 @@ Node* GetMain (char* &input)
 }
 
 
-Node* GetLogic (char* &input)
+Node* GetLogic (char* &input, int func_num)
 {
     kill_spaces (input);
     DEBUG_PRINT (Making logic);
@@ -371,7 +375,7 @@ Node* GetLogic (char* &input)
         current_node -> node_data.type = BLOCK;
 
         DEBUG_PRINT (Gonna get Conditional operator);
-        current_node -> left = Get_Cond_Op (input);//ЗОКОНЧИ!
+        current_node -> left = Get_Cond_Op (input, func_num);//ЗОКОНЧИ!
 
         DEBUG_PRINT (Got Conditional operator);
 
@@ -406,7 +410,7 @@ Node* GetLogic (char* &input)
 }
 
 
-Node* Get_Cond_Op (char* &input)
+Node* Get_Cond_Op (char* &input, int func_num)
 {
 
     int read_count = 0;
@@ -433,7 +437,7 @@ Node* Get_Cond_Op (char* &input)
 
         input += read_count;
 
-        cond_block -> left = Get_Cond (input);
+        cond_block -> left = Get_Cond (input, func_num);
         printf ("INPUT AFTER COND OPERATOR: %s", input);
         cond_block -> left -> father = cond_block;
 
@@ -444,7 +448,7 @@ Node* Get_Cond_Op (char* &input)
         else
             throw "Требуется двоеточие после Условного оператора";
 
-        cond_block -> right = Get_ASSGN (input);
+        cond_block -> right = Get_ASSGN (input, func_num);
         cond_block -> right -> father = cond_block;
 
         return cond_block;
@@ -453,7 +457,7 @@ Node* Get_Cond_Op (char* &input)
     else
     {
         DEBUG_PRINT (gonna get assignment);
-        return Get_ASSGN (input);
+        return Get_ASSGN (input, func_num);
     }
 
     throw "Block get cond op error";
@@ -461,10 +465,10 @@ Node* Get_Cond_Op (char* &input)
 }
 
 
-Node* Get_ASSGN (char* &input)
+Node* Get_ASSGN (char* &input, int func_num)
 {
     kill_spaces (input);
-    Node* node = Get_Cond (input); //Отдельно проверить на то, что слева от присваивания переменная
+    Node* node = Get_Cond (input, func_num); //Отдельно проверить на то, что слева от присваивания переменная
 
     kill_spaces (input);
 
@@ -493,7 +497,7 @@ Node* Get_ASSGN (char* &input)
         input += read_count;
         DEBUG_CODE (printf ("Input after assignment: %s\n", input));
 
-        node -> right = Get_Cond (input);
+        node -> right = Get_Cond (input, func_num);
         node -> right -> father = node;
 
         letters[0] = 0;
@@ -503,13 +507,13 @@ Node* Get_ASSGN (char* &input)
 }
 
 
-Node* Get_Cond (char *&input)
+Node* Get_Cond (char *&input, int func_num)
 {
     kill_spaces (input);
     if (*input == ',')
         return nullptr;
 
-    Node* node = Get_E (input);
+    Node* node = Get_E (input, func_num);
 
     DEBUG_PRINT (Got E in Get_cond);
 
@@ -536,7 +540,7 @@ Node* Get_Cond (char *&input)
 
         input += read_count;
 
-        node -> right = Get_E (input);
+        node -> right = Get_E (input, func_num);
         node -> right -> father = node;
     }
 
@@ -545,13 +549,13 @@ Node* Get_Cond (char *&input)
     return node;
 }
 
-Node* Get_E (char *&input)
+Node* Get_E (char *&input, int func_num)
 {
     kill_spaces (input);
     if (*input == ',')
         return nullptr;
 
-    Node* node = Get_T (input);
+    Node* node = Get_T (input, func_num);
 
     DEBUG_PRINT (Got T);
 
@@ -580,7 +584,7 @@ Node* Get_E (char *&input)
 
         input += read_count;
 
-        node -> right = Get_T (input);
+        node -> right = Get_T (input, func_num);
         node -> right -> father = node;
 
         letters[0] = 0;
@@ -588,10 +592,10 @@ Node* Get_E (char *&input)
     return node;
 }
 
-Node* Get_T (char *&input)
+Node* Get_T (char *&input, int func_num)
 {
     kill_spaces (input);
-    Node* node = Get_K (input);
+    Node* node = Get_K (input, func_num);
 
     DEBUG_PRINT (Got K);
 
@@ -617,7 +621,7 @@ Node* Get_T (char *&input)
 
         input += read_count;
 
-        node -> right = Get_K (input);
+        node -> right = Get_K (input, func_num);
         node -> right -> father = node;
 
         letters[0] = 0;
@@ -625,10 +629,10 @@ Node* Get_T (char *&input)
     return node;     
 }
 
-Node* Get_K (char *&input)
+Node* Get_K (char *&input, int func_num)
 {
     kill_spaces (input);
-    Node* node = Get_P (input);
+    Node* node = Get_P (input, func_num);
 
     DEBUG_PRINT (Got P);
 
@@ -656,7 +660,7 @@ Node* Get_K (char *&input)
 
         input += read_count;
 
-        node -> right = Get_P (input);
+        node -> right = Get_P (input, func_num);
         node -> right -> father = node;
 
         letters[0] = 0;
@@ -664,7 +668,7 @@ Node* Get_K (char *&input)
     return node;     
 }
 
-Node* Get_P (char *&input)
+Node* Get_P (char *&input, int func_num)
 {
     kill_spaces (input);
     DEBUG_CODE ( printf ("Input in P: %s\n", input) );
@@ -672,7 +676,7 @@ Node* Get_P (char *&input)
     if ( *input == '(' )
     {
         input++;
-        Node* node = Get_E (input);
+        Node* node = Get_E (input, func_num);
         if ( *input == ')' )
         {
             input++;
@@ -692,11 +696,11 @@ Node* Get_P (char *&input)
     else
     {
         DEBUG_PRINT (Gonna get F);
-        return Get_F (input);
+        return Get_F (input, func_num);
     }    
 }
 
-Node* Get_F (char *&input)
+Node* Get_F (char *&input, int func_num)
 {
     kill_spaces (input);
     char letters[BUFFERSIZE] = {};
@@ -719,22 +723,13 @@ Node* Get_F (char *&input)
     {
         DEBUG_PRINT (Unary function detected);
 
-            expression = Get_E (input);
+            expression = Get_E (input, func_num);
 
         new_node -> node_data.type = UN_FUNCTION;
         new_node -> node_data.data.code = get_un_function_code (letters);
         new_node -> right = expression;
         expression -> father = new_node;
 
-        return new_node;
-    }
-    else if ( is_variable (letters) )
-    {
-        DEBUG_PRINT (Variable detected);
-
-        new_node -> node_data.type = VARIABLE;
-        new_node -> node_data.data.code = get_variable_num (letters);
-        
         return new_node;
     }
     else if ( is_def (letters) )
@@ -746,6 +741,36 @@ Node* Get_F (char *&input)
 
         return new_node;
     }
+    else 
+    {
+        if (func_num == -1)
+        {
+            if ( is_variable (letters) )
+            {
+                DEBUG_PRINT (Variable detected);
+
+                new_node -> node_data.type = VARIABLE;
+                new_node -> node_data.data.code = get_variable_num (letters);
+                
+                return new_node;
+            }
+        }
+        else
+        {
+            if ( is_argument (letters, func_num) )
+            {
+                DEBUG_PRINT (Argument detected);
+
+                new_node -> node_data.type = ARGUMENT;
+                new_node -> node_data.data.code = get_argument_num (letters, func_num);
+                
+                return new_node;
+            }
+        }
+    }
+
+
+
     DEBUG_PRINT (Cannot detect variable or un_function);   //ПРОДОЛЖИТЬ
     
     delete new_node;
@@ -846,6 +871,25 @@ int get_def_num (char* nummed_def)
 {
     for (int i = 0; i < DEF_NUMBER && def[i]; i++)
         if ( ! strcmp (nummed_def, def[i]) )
+            return i;
+
+    assert (false);
+}
+
+bool is_argument (char* potentional_arg, int func_num)
+{
+    DEBUG_PRINT (ARG COMPARSION...)
+    for (int i = 0; i < ARG_NUMBER && DEF_ARGUMENTS[func_num][i]; i++)
+        if ( ! strcmp (potentional_arg, DEF_ARGUMENTS[func_num][i]) )
+            return true;
+
+    return false;
+}
+
+int get_argument_num (char* arg, int func_num)
+{
+    for (int i = 0; i < ARG_NUMBER && DEF_ARGUMENTS[func_num][i]; i++)
+        if ( ! strcmp (arg, DEF_ARGUMENTS[func_num][i]) )
             return i;
 
     assert (false);

@@ -453,7 +453,7 @@ Node* Get_Cond_Op (char* &input, int func_num)
         else
             throw "Требуется двоеточие после Условного оператора";
 
-        cond_block -> right = Get_ASSGN (input, func_num);
+        cond_block -> right = Get_Cond_Op (input, func_num);
         cond_block -> right -> father = cond_block;
 
         return cond_block;

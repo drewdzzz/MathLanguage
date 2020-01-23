@@ -232,12 +232,14 @@ void asm_cond_operator (FILE* stream, CalcTree::Node_t *node)
 {
     if ( is_this_cond_op (node->node_data.data.code, "Если" ) )
     {
+        int label = LABEL_COUNTER;
+        LABEL_COUNTER++;
+
         asm_undertree (stream, node->left);
         fprintf (stream, "PUSH 0\n"
-                         "JE COND_F%d\n", LABEL_COUNTER);
+                         "JE COND_F%d\n", label);
         asm_undertree (stream, node->right);
-        fprintf (stream, "COND_F%d:\n", LABEL_COUNTER);
-        LABEL_COUNTER++;
+        fprintf (stream, "COND_F%d:\n", label);
     }
 }
 

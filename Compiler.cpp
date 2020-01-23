@@ -73,6 +73,7 @@ int main ()
 
     try
     {
+        DEBUG_CODE ( tree.draw("open"); )
         write_to_asm (tree);
     }
     catch(const char* error)
